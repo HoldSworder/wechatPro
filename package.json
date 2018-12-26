@@ -1,0 +1,25 @@
+{
+  "name": "wechatpro",
+  "version": "1.0.0",
+  "description": "微信配置服务器",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HoldSworder/wechatPro.git"
+  },
+  "author": "qzr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HoldSworder/wechatPro/issues"
+  },
+  "homepage": "https://github.com/HoldSworder/wechatPro#readme",
+  "dependencies": {
+    "bluebird": "^3.5.3",
+    "koa2": "^2.0.0-alpha.7",
+    "koa2-request": "^1.0.4",
+    "sha1": "^1.1.1"
+  }
+}
