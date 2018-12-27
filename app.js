@@ -7,7 +7,7 @@ const wechat_file = path.join(__dirname, './config/wechat.txt')
 
 let config = {
     wechat: {
-        appId: 'wxf122221dc8bfbfdb',
+        appID: 'wxf122221dc8bfbfdb',
         appSecret: 'ef79ffe81efd6dd5d8d527d12258e7b4',
         token: 'qzrisreallyagenius',
         getAccessToken() {

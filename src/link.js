@@ -1,6 +1,6 @@
 const sha1 = require('sha1')
 const koa2Req = require('koa2-request')
-// const Promise = require('bluebird')
+const Promise = require('bluebird')
 
 let prefix = 'https://api.weixin.qq.com/cgi-bin/'
 let api = {
@@ -8,7 +8,7 @@ let api = {
 }
 class Wechat {
     constructor(opts) {
-        this.appId = opts.appID
+        this.appID = opts.appID
         this.appSecret = opts.appSecret
         this.getAccessToken = opts.getAccessToken
         this.saveAccessToken = opts.saveAccessToken
@@ -21,9 +21,9 @@ class Wechat {
 
         if (data && data.length != 0) {
             data = JSON.parse(data)
-            console.log(data)
             if (!this.isValidAccessToken(data)) {
                 data = await this.updateAccessToken()
+                console.log(data)
             }
         } else {
             data = await this.updateAccessToken()
@@ -52,10 +52,12 @@ class Wechat {
     updateAccessToken() {
         let appID = this.appID
         let appSecret = this.appSecret
-        let url = api.accessToken + '&appid=' + appID + '&secret=' + appSecret
+        let url = api.accessToken + '&appID=' + appID + '&secret=' + appSecret
 
         return new Promise(async (resolve, reject) => {
+            console.log(url)
             let res = await koa2Req(url)
+            console.log(res)
             let data = JSON.parse(res.body)
             data.expires_in = new Date().getTime() + (data.expires_in - 20) * 1000
             resolve(data)
