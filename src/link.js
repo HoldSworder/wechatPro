@@ -1,89 +1,58 @@
 const sha1 = require('sha1')
-const koa2Req = require('koa2-request')
-const Promise = require('bluebird')
-
-let prefix = 'https://api.weixin.qq.com/cgi-bin/'
-let api = {
-    accessToken: prefix + 'token?grant_type=client_credential'
-}
-class Wechat {
-    constructor(opts) {
-        this.appID = opts.appID
-        this.appSecret = opts.appSecret
-        this.getAccessToken = opts.getAccessToken
-        this.saveAccessToken = opts.saveAccessToken
-
-        this.init()
-    }
-
-    async init() {
-        let data = await this.getAccessToken()
-
-        if (data && data.length != 0) {
-            data = JSON.parse(data)
-            if (!this.isValidAccessToken(data)) {
-                data = await this.updateAccessToken()
-                console.log(data)
-            }
-        } else {
-            data = await this.updateAccessToken()
-        }
-
-        this.access_token = data.access_token
-        this.expires_in = data.expires_in
-        this.saveAccessToken(JSON.stringify(data))
-    }
-
-    isValidAccessToken(data) {
-        if (!data || !data.access_token || !data.expires_in) {
-            return false
-        }
-
-        let expires_in = data.expires_in
-        let now = (new Date().getTime())
-
-        if (now < expires_in) {
-            return true
-        } else {
-            return false
-        }
-    }
-
-    updateAccessToken() {
-        let appID = this.appID
-        let appSecret = this.appSecret
-        let url = api.accessToken + '&appID=' + appID + '&secret=' + appSecret
-
-        return new Promise(async (resolve, reject) => {
-            console.log(url)
-            let res = await koa2Req(url)
-            console.log(res)
-            let data = JSON.parse(res.body)
-            data.expires_in = new Date().getTime() + (data.expires_in - 20) * 1000
-            resolve(data)
-        })
-    }
-}
+// const Promise = require('bluebird')
+const Wechat = require('./wechat')
+const util = require('./util')
+const getRawBody = require('raw-body')
 
 module.exports = function (opts) {
-    let wechat = new Wechat(opts)
+	let wechat = new Wechat(opts)
 
-    return async (ctx, next) => {
-        let query = ctx.query
+	return async (ctx, next) => {
+		let query = ctx.query
+		request = ctx.request
 
-        let token = opts.token
-        let signature = query.signature
-        let nonce = query.nonce
-        let timestamp = query.timestamp
-        let echostr = query.echostr
+		let token = opts.token
+		signature = query.signature
+		nonce = query.nonce
+		timestamp = query.timestamp
+		echostr = query.echostr
 
-        let str = [token, timestamp, nonce].sort().join('')
-        let sha = sha1(str)
+		let str = [token, timestamp, nonce].sort().join('')
+		sha = sha1(str)
 
-        if (sha === signature) {
-            ctx.response.body = echostr + ''
-        } else {
-            ctx.response.body = 'wrong'
-        }
-    }
+		let method = request.method
+		if (sha === signature) {
+			if (method === 'GET') {
+				if (sha === signature) {
+					ctx.body = echostr
+				} else {
+					ctx.body = 'Wrong'
+				}
+			} else if (method === 'POST') {
+				try {
+					const data = await getRawBody(ctx.req, {
+						length: ctx.length,
+						limit: '1mb',
+						encodeing: ctx.charset
+					})
+					const content = await util.parseXMLAsync(data)
+					const message = util.formatMessage(content.xml)
+
+					const reply = util.tpl(replyBody, msg)
+					let now = new Date().getTime()
+					ctx.status = 200
+					ctx.type = 'application/xml'
+					var reply = util.tel()
+					ctx.body = reply
+				} catch (error) {
+					console.log(error)
+				}
+			}
+		} else {
+			ctx.body = {
+				code: -1,
+				msg: "fail"
+			}
+		}
+	}
 }
