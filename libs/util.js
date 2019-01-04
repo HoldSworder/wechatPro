@@ -1,5 +1,4 @@
 const fs = require('fs')
-// const Promise = require('bluebird')
 
 exports.readFileAsync = function (fpath, encodening) {
     return new Promise((resolve, reject) => {

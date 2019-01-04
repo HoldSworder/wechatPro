@@ -7,4 +7,4 @@ let app = new Koa()
 app.use(link(config.wechat))
 
 app.listen(config.port)
-console.log('Listening: 80')
+console.log('Listening: 3003')

@@ -1,5 +1,4 @@
 const sha1 = require('sha1')
-// const Promise = require('bluebird')
 const Wechat = require('./wechat')
 const util = require('./util')
 const getRawBody = require('raw-body')
